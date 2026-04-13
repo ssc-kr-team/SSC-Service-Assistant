@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: final-product-chatbot-adminui
+    name: final-product-chatbot-directfiles
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
@@ -17,8 +17,6 @@ services:
         sync: false
       - key: SUPABASE_PRODUCTS_TABLE
         value: products
-      - key: SUPABASE_REVIEW_TABLE
-        value: review_candidates
       - key: SUPABASE_PRODUCT_FILES_TABLE
         value: product_files
       - key: SUPABASE_STORAGE_BUCKET

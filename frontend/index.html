@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>관리자 UI 포함 제품 챗봇</title>
+  <title>직접 파일관리형 제품 챗봇</title>
   <style>
     :root{--panel:#fff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;--soft:#f8fafc;--primary:#111827;--warnbg:#fff7ed;--warn:#9a3412;--okbg:#f0fdf4;--ok:#166534;--shadow:0 10px 30px rgba(15,23,42,.08)}
     *{box-sizing:border-box} body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#ffffff 50%,#eef2ff 100%);color:var(--text)}
@@ -22,7 +21,6 @@
     .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
     .p-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px}.p-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.muted{color:var(--muted);font-size:12px}.pn{font-size:16px;font-weight:800;margin-top:2px}
     .badge{border-radius:999px;background:var(--soft);border:1px solid var(--line);padding:6px 10px;font-size:12px;white-space:nowrap}.spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.spec{background:var(--soft);border-radius:14px;padding:10px;font-size:13px}
-    .reason-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.reason{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:6px 10px}
     table{width:100%;border-collapse:collapse;background:#fff} th,td{padding:10px;border-top:1px solid var(--line);text-align:left;font-size:13px;vertical-align:top} thead th{background:var(--soft);border-top:none}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:18px;margin-top:12px}
     .inputbar{display:flex;gap:12px;padding:18px 24px 24px;border-top:1px solid var(--line)} input[type=text], input[type=password], select, textarea{width:100%;min-height:44px;border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:14px;outline:none;background:#fff}
     .hidden{display:none}.filename{font-size:13px;color:var(--muted);margin-top:10px}.row{display:flex;gap:8px;flex-wrap:wrap}.stack{display:grid;gap:10px}
@@ -37,34 +35,30 @@
     <div class="card">
       <div class="content">
         <div class="title">관리자 화면</div>
-        <div class="sub">제품 리스트, 파일 리스트, 파일 업로드, PDF 후보 승인까지 클릭으로 관리합니다.</div>
+        <div class="sub">파일 업로드는 즉시 반영되며, 승인 과정은 없습니다. 업로드된 파일은 관리자가 삭제할 수 있습니다.</div>
         <div class="sep"></div>
         <div class="metrics">
           <div class="metric"><div class="k">총 제품수</div><div class="v" id="m-total">-</div></div>
-          <div class="metric"><div class="k">검토 후보</div><div class="v" id="m-candidates">-</div></div>
           <div class="metric"><div class="k">등록 파일수</div><div class="v" id="m-files">-</div></div>
           <div class="metric"><div class="k">Storage Bucket</div><div class="v" style="font-size:16px" id="m-bucket">-</div></div>
+          <div class="metric"><div class="k">상태</div><div class="v" style="font-size:16px" id="m-state">-</div></div>
         </div>
         <div id="statusBox"></div>
         <div class="sep"></div>
         <input id="adminToken" type="password" placeholder="관리자 토큰 입력" />
         <div id="adminStatus"></div>
-
         <div class="sep"></div>
         <div class="admin-tabs">
           <div class="admin-tab active" data-admin="products">제품</div>
           <div class="admin-tab" data-admin="files">파일</div>
           <div class="admin-tab" data-admin="upload">업로드</div>
-          <div class="admin-tab" data-admin="candidates">후보승인</div>
         </div>
-
         <div class="admin-panel active" id="admin-products">
           <div class="stack">
             <button id="loadProductsBtn" class="primary">제품 리스트 불러오기</button>
             <div class="table-wrap"><table id="productsTable"></table></div>
           </div>
         </div>
-
         <div class="admin-panel" id="admin-files">
           <div class="stack">
             <input id="filesPartNumber" type="text" placeholder="품번 입력 후 파일 조회" />
@@ -75,14 +69,12 @@
             <div class="table-wrap"><table id="filesTable"></table></div>
           </div>
         </div>
-
         <div class="admin-panel" id="admin-upload">
           <div class="stack">
             <label class="file-label" for="dbFile">공식 DB 엑셀 선택</label>
             <input id="dbFile" class="hidden" type="file" accept=".xlsx,.xls,.csv" />
             <div class="filename" id="dbFileName">선택된 DB 파일 없음</div>
             <button id="uploadDbBtn" class="primary">DB 업로드</button>
-
             <div class="sep"></div>
             <input id="uploadPartNumber" type="text" placeholder="파일 연결할 품번" />
             <select id="uploadFileType">
@@ -96,36 +88,18 @@
               <option value="catalog">catalog</option>
             </select>
             <textarea id="uploadDescription" placeholder="설명(선택)"></textarea>
-            <label class="file-label" for="productFile">제품 관련 파일 선택</label>
+            <label class="file-label" for="productFile">제품 관련 PDF 선택</label>
             <input id="productFile" class="hidden" type="file" accept=".pdf" />
             <div class="filename" id="productFileName">선택된 제품 파일 없음</div>
             <button id="uploadProductFileBtn">제품 파일 업로드</button>
-
-            <div class="sep"></div>
-            <label class="file-label" for="pdfFile">PDF 자동추출 파일 선택</label>
-            <input id="pdfFile" class="hidden" type="file" accept=".pdf" />
-            <div class="filename" id="pdfFileName">선택된 PDF 없음</div>
-            <select id="pdfType">
-              <option value="competitor">경쟁사 PDF</option>
-              <option value="our">우리회사 PDF</option>
-            </select>
-            <button id="extractPdfBtn">PDF 자동추출</button>
-          </div>
-        </div>
-
-        <div class="admin-panel" id="admin-candidates">
-          <div class="stack">
-            <button id="loadCandidatesBtn" class="primary">후보 리스트 불러오기</button>
-            <div id="candidateList">후보를 불러오면 여기에 표시됩니다.</div>
           </div>
         </div>
       </div>
     </div>
-
     <div class="card">
       <div style="padding:24px 24px 8px">
         <div class="title">고객/직원용 챗봇</div>
-        <div class="sub">검색 / 비교 / 추천 / 자료 다운로드 요청을 지원합니다.</div>
+        <div class="sub">모든 사용자가 자료를 요청하면 다운로드할 수 있습니다.</div>
       </div>
       <div class="tabbar">
         <div class="tab active" data-tab="chat">챗봇</div>
@@ -134,7 +108,7 @@
       <div class="panel active" id="panel-chat">
         <div class="chat-area" id="chat-area"></div>
         <div class="inputbar">
-          <input id="question" type="text" placeholder="예: STW8A2PD-B1 사양서 / LM80 / 신뢰성 자료 / 대체품 추천" />
+          <input id="question" type="text" placeholder="예: STW8A2PD-B1 사양서 / 신뢰성 자료 / LM80 / 인증서" />
           <button id="sendBtn" class="primary">전송</button>
         </div>
       </div>
@@ -157,18 +131,12 @@ const filesTable = document.getElementById("filesTable");
 const questionEl = document.getElementById("question");
 const dbFileInput = document.getElementById("dbFile");
 const productFileInput = document.getElementById("productFile");
-const pdfFileInput = document.getElementById("pdfFile");
 let selectedDbFile = null;
 let selectedProductFile = null;
-let selectedPdfFile = null;
-
-const compareFields = [["manufacturer","제조사"],["brand","브랜드"],["series","시리즈"],["part_number","품번"],["application","적용분야"],["package","패키지"],["cct_k","CCT(K)"],["cri","CRI"],["luminous_flux_lm","광속(lm)"],["efficacy_lm_w","효율(lm/W)"],["forward_voltage_typ_v","Vf Typ(V)"],["test_current_ma","시험전류(mA)"],["macadam_step","맥아덤"],["price_level","가격수준"],["lead_time_weeks","납기(주)"],["replacement_for","대체대상"],["competitor_brand","경쟁브랜드"],["remark","비고"]];
 
 function escapeHtml(s){ return String(s ?? "-").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
 function appendMessage(role, html){ const box=document.createElement("div"); box.className=`msg ${role}`; box.innerHTML=`<div class="bubble">${html}</div>`; chatArea.appendChild(box); chatArea.scrollTop=chatArea.scrollHeight; }
 function renderRowsTable(rows, tableEl=resultTable){ if(!rows||!rows.length){ tableEl.innerHTML="<thead><tr><th>결과 없음</th></tr></thead><tbody><tr><td>데이터가 없습니다.</td></tr></tbody>"; return; } const cols=Object.keys(rows[0]).slice(0,10); tableEl.innerHTML=`<thead><tr>${cols.map(c=>`<th>${escapeHtml(c)}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${escapeHtml(r[c])}</td>`).join("")}</tr>`).join("")}</tbody>`; }
-function renderProductCards(items){ return `<div class="cards">${items.map(item=>`<div class="p-card"><div class="p-top"><div><div class="muted">${escapeHtml(item.manufacturer)}</div><div class="pn">${escapeHtml(item.part_number)}</div></div><div class="badge">${escapeHtml(item.application)}</div></div><div class="spec-grid"><div class="spec">CCT ${escapeHtml(item.cct_k)}K</div><div class="spec">CRI ${escapeHtml(item.cri)}</div><div class="spec">효율 ${escapeHtml(item.efficacy_lm_w)}</div><div class="spec">패키지 ${escapeHtml(item.package)}</div></div>${item.recommendation_score!==undefined?`<div style="margin-top:10px;font-size:14px;font-weight:700">추천 점수 ${escapeHtml(item.recommendation_score)}</div><div class="reason-wrap">${(item.recommendation_reason||[]).map(r=>`<div class="reason">${escapeHtml(r)}</div>`).join("")}</div>`:``}</div>`).join("")}</div>`; }
-function renderCompareTable(items){ const [a,b]=items; return `<div class="table-wrap"><table><thead><tr><th>항목</th><th>${escapeHtml(a.part_number)}</th><th>${escapeHtml(b.part_number)}</th></tr></thead><tbody>${compareFields.map(([key,label])=>`<tr><td>${escapeHtml(label)}</td><td>${escapeHtml(a[key])}</td><td>${escapeHtml(b[key])}</td></tr>`).join("")}</tbody></table></div>`; }
 async function apiFetch(path, options={}){ const res=await fetch(path,{...options,headers:{...(options.headers||{})}}); if(!res.ok){ let detail="요청 실패"; try{ const err=await res.json(); detail=err.detail||JSON.stringify(err);}catch(e){} throw new Error(detail);} return res; }
 function adminToken(){ return document.getElementById("adminToken").value.trim(); }
 
@@ -177,11 +145,12 @@ async function healthCheck(){
     const res=await apiFetch("/health");
     const data=await res.json();
     document.getElementById("m-total").textContent=data.rows;
-    document.getElementById("m-candidates").textContent=data.review_queue;
     document.getElementById("m-files").textContent=data.files_count;
     document.getElementById("m-bucket").textContent=data.storage_bucket;
-    statusBox.innerHTML=`<div class="ok">정상: 제품 ${escapeHtml(data.rows)}개 / 후보 ${escapeHtml(data.review_queue)}개 / 파일 ${escapeHtml(data.files_count)}개</div>`;
+    document.getElementById("m-state").textContent="정상";
+    statusBox.innerHTML=`<div class="ok">정상: 제품 ${escapeHtml(data.rows)}개 / 파일 ${escapeHtml(data.files_count)}개</div>`;
   }catch(e){
+    document.getElementById("m-state").textContent="오류";
     statusBox.innerHTML=`<div class="warn">${escapeHtml(e.message)}</div>`;
   }
 }
@@ -231,66 +200,23 @@ async function deleteFile(fileId){
 }
 window.deleteFile = deleteFile;
 
-async function loadCandidates(){
-  try{
-    const res=await apiFetch("/admin/candidates",{headers:{"x-admin-token":adminToken()}});
-    const data=await res.json();
-    const box=document.getElementById("candidateList");
-    if(!data.items.length){ box.innerHTML="후보가 없습니다."; return; }
-    box.innerHTML = data.items.map(item => `
-      <div class="table-wrap" style="padding:12px;margin-bottom:12px">
-        <div><b>${escapeHtml(item.source_filename)}</b> / ${escapeHtml(item.pdf_type)}</div>
-        <pre style="white-space:pre-wrap;font-size:12px">${escapeHtml(JSON.stringify(item.candidate,null,2))}</pre>
-        <div class="row">
-          <button onclick="approveCandidate('${item.candidate_id}','upsert')" class="primary">upsert 반영</button>
-          <button onclick="approveCandidate('${item.candidate_id}','append')">신규 추가</button>
-          <button onclick="approveCandidate('${item.candidate_id}','update')">기존 업데이트</button>
-        </div>
-      </div>`).join("");
-  }catch(e){ adminStatus.innerHTML=`<div class="warn">${escapeHtml(e.message)}</div>`; }
-}
-
-async function approveCandidate(candidateId, mode){
-  try{
-    const res=await apiFetch("/admin/approve-candidate",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","x-admin-token":adminToken()},
-      body:JSON.stringify({candidate_id:candidateId,mode})
-    });
-    const data=await res.json();
-    adminStatus.innerHTML=`<div class="ok">${escapeHtml(data.message)} / ${escapeHtml(data.part_number)}</div>`;
-    await loadCandidates(); await loadProducts(); await healthCheck();
-  }catch(e){ adminStatus.innerHTML=`<div class="warn">${escapeHtml(e.message)}</div>`; }
-}
-window.approveCandidate = approveCandidate;
-
 async function handleQuestion(q){
   const question=q.trim(); if(!question) return;
   appendMessage("user",`<div class="msg-body">${escapeHtml(question)}</div>`);
   try{
     const res=await apiFetch("/query",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({query:question})});
     const data=await res.json();
-
     if(data.intent==="file_download"){
       appendMessage("assistant",`<div class="msg-title">자료 찾음</div><div class="msg-body">${escapeHtml(data.part_number)} / ${escapeHtml(data.file_type)} / ${escapeHtml(data.file_name)}</div><div style="margin-top:10px"><button onclick="window.open('${data.download_url}','_blank')" class="primary">다운로드</button></div>`);
       return;
     }
-    if(data.intent==="compare"){
-      renderRowsTable(data.comparison_table||[]);
-      if(data.error){
-        appendMessage("assistant",`<div class="msg-title">비교 대상 확인 필요</div><div class="msg-body">${escapeHtml(data.error)}</div>`);
-      } else {
-        appendMessage("assistant",`<div class="msg-title">비교 결과</div><div class="msg-body">${escapeHtml(data.explanation||"")}</div>${renderCompareTable(data.products||[])}<div class="warn">${escapeHtml(data.warning||"")}</div>`);
-      }
-      return;
-    }
     if(data.intent==="recommend"){
+      appendMessage("assistant",`<div class="msg-title">추천 결과</div><div class="msg-body">${escapeHtml(data.explanation||"")}</div>`);
       renderRowsTable(data.items||[]);
-      appendMessage("assistant",`<div class="msg-title">우리 회사 제품 추천 결과</div><div class="msg-body">${escapeHtml(data.explanation||"")}\n${escapeHtml(data.note||"")}</div>${renderProductCards(data.items||[])}`);
       return;
     }
+    appendMessage("assistant",`<div class="msg-title">검색 결과</div><div class="msg-body">${escapeHtml(data.explanation||"")}</div>`);
     renderRowsTable(data.items||[]);
-    appendMessage("assistant",`<div class="msg-title">검색 결과</div><div class="msg-body">${escapeHtml(data.explanation||"")}</div>${(data.items&&data.items.length)?renderProductCards(data.items):`<div class="warn">조건에 맞는 제품이 없습니다.</div>`}`);
   }catch(e){
     appendMessage("assistant",`<div class="msg-title">오류</div><div class="msg-body">${escapeHtml(e.message)}</div>`);
   }
@@ -303,7 +229,6 @@ document.querySelectorAll(".admin-tab").forEach(tab=>{ tab.addEventListener("cli
 
 dbFileInput.addEventListener("change",()=>{ selectedDbFile=dbFileInput.files[0]||null; document.getElementById("dbFileName").textContent=selectedDbFile?`선택된 DB 파일: ${selectedDbFile.name}`:"선택된 DB 파일 없음"; });
 productFileInput.addEventListener("change",()=>{ selectedProductFile=productFileInput.files[0]||null; document.getElementById("productFileName").textContent=selectedProductFile?`선택된 파일: ${selectedProductFile.name}`:"선택된 제품 파일 없음"; });
-pdfFileInput.addEventListener("change",()=>{ selectedPdfFile=pdfFileInput.files[0]||null; document.getElementById("pdfFileName").textContent=selectedPdfFile?`선택된 PDF: ${selectedPdfFile.name}`:"선택된 PDF 없음"; });
 
 document.getElementById("uploadDbBtn").addEventListener("click",async()=>{
   if(!selectedDbFile){ adminStatus.innerHTML='<div class="warn">DB 파일을 선택해 주세요.</div>'; return; }
@@ -335,24 +260,11 @@ document.getElementById("uploadProductFileBtn").addEventListener("click",async()
   }catch(e){ adminStatus.innerHTML=`<div class="warn">${escapeHtml(e.message)}</div>`; }
 });
 
-document.getElementById("extractPdfBtn").addEventListener("click",async()=>{
-  if(!selectedPdfFile){ adminStatus.innerHTML='<div class="warn">PDF를 선택해 주세요.</div>'; return; }
-  try{
-    const fd=new FormData(); fd.append("file", selectedPdfFile);
-    const pdfType=document.getElementById("pdfType").value;
-    const res=await apiFetch(`/admin/pdf-extract?pdf_type=${encodeURIComponent(pdfType)}`,{method:"POST",headers:{"x-admin-token":adminToken()},body:fd});
-    const data=await res.json();
-    adminStatus.innerHTML=`<div class="ok">${escapeHtml(data.message)}</div>`;
-    await loadCandidates(); await healthCheck();
-  }catch(e){ adminStatus.innerHTML=`<div class="warn">${escapeHtml(e.message)}</div>`; }
-});
-
 document.getElementById("loadProductsBtn").addEventListener("click",loadProducts);
 document.getElementById("loadFilesBtn").addEventListener("click",()=>loadFiles(document.getElementById("filesPartNumber").value.trim()));
 document.getElementById("clearFilesBtn").addEventListener("click",()=>{ document.getElementById("filesPartNumber").value=""; loadFiles(""); });
-document.getElementById("loadCandidatesBtn").addEventListener("click",loadCandidates);
 
-appendMessage("assistant",`<div class="msg-title">관리자 UI 포함 버전 준비 완료</div><div class="msg-body">제품 / 파일 / 업로드 / 후보승인 탭에서 관리할 수 있습니다.\n고객은 자료 요청 시 다운로드 링크를 받을 수 있습니다.</div>`);
+appendMessage("assistant",`<div class="msg-title">직접 파일관리형 버전 준비 완료</div><div class="msg-body">모든 사용자가 파일을 요청하면 다운로드할 수 있습니다. 업로드 승인 과정은 없고, 관리자는 파일 삭제가 가능합니다.</div>`);
 renderRowsTable([]);
 healthCheck();
 </script>

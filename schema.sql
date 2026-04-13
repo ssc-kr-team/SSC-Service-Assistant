@@ -22,15 +22,6 @@ create table if not exists products (
   remark text
 );
 
-create table if not exists review_candidates (
-  candidate_id text primary key,
-  source_filename text,
-  pdf_type text,
-  candidate jsonb,
-  raw_text_excerpt text,
-  created_at timestamptz default now()
-);
-
 create table if not exists product_files (
   id uuid primary key default gen_random_uuid(),
   part_number text not null,
