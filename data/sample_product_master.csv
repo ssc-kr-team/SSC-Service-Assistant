@@ -1,0 +1,2 @@
+Part_Number,Manufacturer,Brand,Series,Status,Application,Package,CCT_K,CRI,Luminous_Flux_lm,Efficacy_lm_W,Forward_Voltage_Typ_V,Test_Current_mA,Macadam_Step,Price_Level,Lead_Time_weeks,Replacement_For,Competitor_Brand,Remark
+STW8A2PD-B1,Seoul Semiconductor,SSC,STW8A2PD,양산,실내용,3030,4000,80,150,170,2.9,65,3,중,6,LM561C,Samsung,실내용 표준 모델

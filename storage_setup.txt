@@ -1,0 +1,6 @@
+Supabase Storage 설정
+
+1. Supabase 프로젝트 > Storage
+2. New bucket 클릭
+3. bucket name: product-files
+4. Public bucket은 꺼도 됩니다
