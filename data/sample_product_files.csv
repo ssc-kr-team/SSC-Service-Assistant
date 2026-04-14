@@ -1,0 +1,2 @@
+part_number,file_type,file_name,storage_path,description,manufacturer,package,cct_k,cri,luminous_flux_lm,efficacy_lm_w,forward_voltage_typ_v,test_current_ma
+STW8A2PD-T2-W,datasheet,sample.pdf,STW8A2PD-T2-W/datasheet/sample.pdf,sample,Seoul Semiconductor,3528,4000,80,150,170,3.0,150

@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: final-product-chatbot-directfiles
+    name: file-first-product-chatbot
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
@@ -9,14 +9,10 @@ services:
         value: korea_lighting_2026
       - key: ALLOWED_ORIGINS
         value: "*"
-      - key: INTERNAL_MANUFACTURERS
-        value: "Seoul Semiconductor,Seoul Viosys,SSC,SVC"
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
-      - key: SUPABASE_PRODUCTS_TABLE
-        value: products
       - key: SUPABASE_PRODUCT_FILES_TABLE
         value: product_files
       - key: SUPABASE_STORAGE_BUCKET
